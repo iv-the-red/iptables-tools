@@ -23,6 +23,18 @@ Small bash helpers around `iptables` for common tasks:
 - Root privileges (most scripts exit if not run as root).
 - For port forwarding, the destination host must be reachable from this machine.
 
+- Make sure to allow running with:
+```bash
+chmod +x firewall-ip-allow/ip-firewall-add.sh
+chmod +x firewall-ip-allow/ip-firewall-remove.sh
+
+chmod +x ip-fowarding/ip-foward-add.sh
+chmod +x ip-fowarding/ip-foward-remove.sh
+
+chmod +x iptables-backup/backup-iptables.sh
+```
+
+
 > [!WARNING]
 > For DNAT port forwarding you must enable IPv4 forwarding:
 >
@@ -131,6 +143,105 @@ Main menu:
 Restoring a backup **overwrites your current iptables ruleset**, so double-check the file you pick.
 
 ---
+
+## Want an CLI frontend?
+Create a file in `/usr/local/bin/iptables-tools` with the following content:
+
+```bash
+#!/bin/bash
+set -e
+
+BASE="/root/iptables-tools"
+
+usage() {
+  cat <<EOF
+Usage:
+  iptables-tools firewall add
+  iptables-tools firewall remove
+  iptables-tools forward add
+  iptables-tools forward remove
+  iptables-tools backup
+
+EOF
+}
+
+case "$1" in
+  firewall)
+    case "$2" in
+      add)    exec "$BASE/firewall-ip-allow/ip-firewall-add.sh" ;;
+      remove) exec "$BASE/firewall-ip-allow/ip-firewall-remove.sh" ;;
+      *) usage ;;
+    esac
+    ;;
+  forward|foward) # accept typo, because reality
+    case "$2" in
+      add)    exec "$BASE/ip-fowarding/ip-foward-add.sh" ;;
+      remove) exec "$BASE/ip-fowarding/ip-foward-remove.sh" ;;
+      *) usage ;;
+    esac
+    ;;
+  backup)
+    exec "$BASE/iptables-backup/backup-iptables.sh"
+    ;;
+  -h|--help|"")
+    usage
+    ;;
+  *)
+    echo "Unknown command"
+    usage
+    ;;
+esac
+```
+
+Make it executable:
+
+```bash
+chmod +x /usr/local/bin/iptables-tools
+```
+
+### For [TAB] completion, create `/etc/bash_completion.d/iptables-tools` with:
+
+```bash
+_iptables_tools() {
+  local cur prev
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  case "${COMP_CWORD}" in
+    1)
+      COMPREPLY=( $(compgen -W "firewall forward foward backup" -- "$cur") )
+      ;;
+    2)
+      case "${COMP_WORDS[1]}" in
+        firewall|forward|foward)
+          COMPREPLY=( $(compgen -W "add remove" -- "$cur") )
+          ;;
+        backup)
+          COMPREPLY=()
+          ;;
+      esac
+      ;;
+  esac
+}
+
+complete -F _iptables_tools iptables-tools
+```
+
+Read the completion file:
+
+```bash
+source /etc/bash_completion
+```
+
+Commands are as follows:
+
+```bash
+iptables-tools firewall add
+iptables-tools firewall remove
+iptables-tools forward add
+iptables-tools forward remove
+iptables-tools backup
+```
 
 ## General notes
 
