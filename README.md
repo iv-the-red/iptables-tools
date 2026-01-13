@@ -20,7 +20,7 @@ Small bash helpers around `iptables` for common tasks:
 ## Prerequisites
 
 > [!WARNING]
-> the scipts *won't* work if you are using `nftables` as backend for `iptables`, or if your system uses `firewalld`, `ufw` or another firewall manager that conflicts with direct `iptables` manipulation.
+> the scipts __**won't**__ work if you are using `nftables` as backend for `iptables`, or if your system uses `firewalld`, `ufw` or another firewall manager that conflicts with direct `iptables` manipulation.
 > Please consult your default firewall management tool for how to disable it first.
 > Example:
 > ```bash
