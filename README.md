@@ -19,6 +19,16 @@ Small bash helpers around `iptables` for common tasks:
 
 ## Prerequisites
 
+> [!WARNING]
+> the scipts *won't* work if you are using `nftables` as backend for `iptables`, or if your system uses `firewalld`, `ufw` or another firewall manager that conflicts with direct `iptables` manipulation.
+> Please consult your default firewall management tool for how to disable it first.
+> Example:
+> ```bash
+> ufw disable
+> systemctl stop ufw
+> systemctl disable ufw
+> ```
+
 - Linux host with `iptables` available and the `nat` table enabled.
 - Root privileges (most scripts exit if not run as root).
 - For port forwarding, the destination host must be reachable from this machine.
